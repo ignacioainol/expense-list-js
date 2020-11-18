@@ -21,7 +21,14 @@ class Presupuesto {
 
     nuevoGasto(gasto) {
         this.gastos = [...this.gastos, gasto]
-        console.log(this.gastos);
+        this.calcularRestante();
+    }
+
+    calcularRestante() {
+        const gastado = this.gastos.reduce((total, gasto) => total + gasto.cantidad, 0);
+        this.restante = this.presupuesto - gastado;
+
+        console.log(this.restante);
     }
 }
 
@@ -54,8 +61,12 @@ class UI {
         }, 3000);
     }
 
+    actualizarRestante(restante) {
+        const divRestante = document.querySelector('#restante');
+        divRestante.textContent = restante;
+    }
+
     agregarGastoListado(gastos) {
-        console.log(gastos);
         const ulListado = document.querySelector('#gastos ul');
 
         while (ulListado.firstChild) {
@@ -64,13 +75,16 @@ class UI {
         gastos.forEach(gasto => {
             const { nombre, cantidad, id } = gasto;
             const li = document.createElement('li');
-            li.className = "list-group-item d-flex justify-content-between align-center"
-            li.textContent = `${nombre} - ${cantidad}`;
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
+            li.setAttribute('data-id', id);
+            //li.dataset.id = id
+            li.innerHTML = `${nombre} <span="badge badge-primary badge-pill"> $${cantidad} </span>`;
             ulListado.appendChild(li);
 
             //boton para borrar el gasto
-            const botonEliminar = document.createElement('a');
-            botonEliminar.textContent = " X"
+            const botonEliminar = document.createElement('button');
+            botonEliminar.classList.add('btn', 'btn-danger', 'borrar-gasto');
+            botonEliminar.innerHTML = " Borrar &times;"
             li.appendChild(botonEliminar);
         })
     }
@@ -115,8 +129,11 @@ function agregarGasto(e) {
     ui.imprimirAlerta("Correcto!");
 
     //imprimir los gastos
-    const { gastos } = presupuesto;
+    const { gastos, restante } = presupuesto;
     ui.agregarGastoListado(gastos);
+
+    //actualizar restante
+    ui.actualizarRestante(restante);
     //reiniciar el formulario
     formulario.reset();
 }
