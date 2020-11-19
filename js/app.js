@@ -30,6 +30,11 @@ class Presupuesto {
 
         console.log(this.restante);
     }
+
+    eliminarGasto(id) {
+        this.gastos = this.gastos.filter(gasto => gasto.id !== id);
+        this.calcularRestante();
+    }
 }
 
 class UI {
@@ -66,7 +71,7 @@ class UI {
         divRestante.textContent = restante;
     }
 
-    agregarGastoListado(gastos) {
+    mostrarGastos(gastos) {
         const ulListado = document.querySelector('#gastos ul');
 
         while (ulListado.firstChild) {
@@ -84,7 +89,10 @@ class UI {
             //boton para borrar el gasto
             const botonEliminar = document.createElement('button');
             botonEliminar.classList.add('btn', 'btn-danger', 'borrar-gasto');
-            botonEliminar.innerHTML = " Borrar &times;"
+            botonEliminar.innerHTML = " Borrar &times;";
+            botonEliminar.onclick = () => {
+                eliminarGasto(id);
+            }
             li.appendChild(botonEliminar);
         })
     }
@@ -101,6 +109,9 @@ class UI {
         } else if ((presupuesto / 2) > restante) {
             restanteDiv.classList.remove('alert-success', 'alert-danger');
             restanteDiv.classList.add('alert-warning');
+        } else {
+            restanteDiv.classList.remove('alert-warning', 'alert-danger');
+            restanteDiv.classList.add('alert-success');
         }
 
         //si el total es 0 o menor
@@ -151,7 +162,7 @@ function agregarGasto(e) {
 
     //imprimir los gastos
     const { gastos, restante } = presupuesto;
-    ui.agregarGastoListado(gastos);
+    ui.mostrarGastos(gastos);
 
     //actualizar restante
     ui.actualizarRestante(restante);
@@ -160,4 +171,12 @@ function agregarGasto(e) {
     ui.comprobarPresupuesto(presupuesto);
     //reiniciar el formulario
     formulario.reset();
+}
+
+function eliminarGasto(id) {
+    presupuesto.eliminarGasto(id);
+    const { gastos, restante } = presupuesto;
+    ui.mostrarGastos(gastos);
+    ui.actualizarRestante(restante);
+    ui.comprobarPresupuesto(presupuesto);
 }
